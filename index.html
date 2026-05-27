@@ -104,8 +104,18 @@
 </head>
 <body class="pb-36 selection:bg-orange-500 selection:text-white">
 
+    <!-- Top Status & Timing Bar -->
+    <div id="top-status-bar" class="w-full bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-b border-orange-500/20 py-2.5 px-4 z-50 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-6 text-sm shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+        <div class="text-gray-300 font-semibold flex items-center gap-2">
+            <i class="far fa-clock text-orange-400 animate-pulse"></i> Shop Timings: 4:00 PM – 9:00 PM
+        </div>
+        <div id="dynamic-shop-status" class="font-bold tracking-wide">
+            <!-- Injected by JS -->
+        </div>
+    </div>
+
     <!-- Floating Cart Button -->
-    <div class="fixed top-20 right-4 z-40 group">
+    <div class="fixed top-24 right-4 z-40 group">
         <div class="absolute inset-0 bg-orange-500 rounded-full blur-md opacity-40 group-hover:opacity-80 transition-opacity animate-pulse"></div>
         <button onclick="toggleCart()" class="relative bg-gradient-to-br from-orange-400 to-red-600 text-white rounded-full h-14 w-14 flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 border border-orange-400/50">
             <i class="fas fa-shopping-cart text-xl"></i>
@@ -114,7 +124,7 @@
     </div>
 
     <!-- Hero Section -->
-    <section class="relative min-h-[95vh] flex flex-col items-center justify-center text-center px-4 overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-800 via-gray-950 to-black pt-10">
+    <section class="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-4 overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-800 via-gray-950 to-black pt-10">
         <!-- Floating food particles background -->
         <div class="absolute inset-0 pointer-events-none opacity-[0.15]">
             <i class="fas fa-hamburger floating absolute top-20 left-4 md:left-20 text-6xl text-orange-500 blur-[1px]" style="animation-duration: 6s; animation-delay: 0s;"></i>
@@ -243,13 +253,17 @@
                 <span>Item Total</span>
                 <span id="cart-item-total" class="font-medium text-white">₹0</span>
             </div>
-            <div class="flex justify-between text-gray-400 text-sm mb-4">
+            <div class="flex justify-between text-gray-400 text-sm mb-2">
                 <span>Delivery Fee</span>
                 <div class="text-right">
                     <span id="cart-delivery-fee" class="font-medium text-white">₹0</span>
                     <span id="cart-delivery-strike" class="hidden text-gray-500 line-through ml-1">₹40</span>
                     <span id="cart-delivery-free" class="hidden text-green-400 font-bold ml-1 animate-pulse">FREE</span>
                 </div>
+            </div>
+            <div id="cart-parcel-container" class="flex justify-between text-gray-400 text-sm mb-4 hidden">
+                <span>Parcel Charge</span>
+                <span id="cart-parcel-charge" class="font-medium text-white">₹5</span>
             </div>
             <div class="flex justify-between text-white font-black text-xl mb-5 border-t border-gray-800 pt-4">
                 <span>Grand Total</span>
@@ -507,30 +521,38 @@
             
             // Delivery & Totals Logic
             let deliveryFee = 0;
+            let parcelCharge = 0;
+            
             if (itemTotal > 0) {
                 deliveryFee = itemTotal >= 300 ? 0 : 40;
+                parcelCharge = 5;
             }
-            let grandTotal = itemTotal > 0 ? itemTotal + deliveryFee : 0;
+            
+            let grandTotal = itemTotal > 0 ? itemTotal + deliveryFee + parcelCharge : 0;
             
             document.getElementById('cart-item-total').innerText = `₹${itemTotal}`;
             
             let delFeeEl = document.getElementById('cart-delivery-fee');
             let delStrikeEl = document.getElementById('cart-delivery-strike');
             let delFreeEl = document.getElementById('cart-delivery-free');
+            let parcelContainer = document.getElementById('cart-parcel-container');
             
             if (itemTotal === 0) {
                 delFeeEl.innerText = `₹0`;
                 delStrikeEl.classList.add('hidden');
                 delFreeEl.classList.add('hidden');
+                parcelContainer.classList.add('hidden');
             } else if (deliveryFee === 0) {
                 delFeeEl.classList.add('hidden');
                 delStrikeEl.classList.remove('hidden');
                 delFreeEl.classList.remove('hidden');
+                parcelContainer.classList.remove('hidden');
             } else {
                 delFeeEl.innerText = `₹40`;
                 delFeeEl.classList.remove('hidden');
                 delStrikeEl.classList.add('hidden');
                 delFreeEl.classList.add('hidden');
+                parcelContainer.classList.remove('hidden');
             }
             
             document.getElementById('cart-grand-total').innerText = `₹${grandTotal}`;
@@ -559,6 +581,17 @@
             let currentHour = new Date().getHours(); 
             // Shop is open 4 PM (16) to 9 PM (21)
             let isOpen = currentHour >= 16 && currentHour < 21; 
+            let isBeforeOpen = currentHour < 16;
+            
+            // Top Status Bar Update
+            let statusText = document.getElementById('dynamic-shop-status');
+            if (isOpen) {
+                statusText.innerHTML = `<span class="text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.8)] flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_5px_#4ade80]"></span> We are open now!</span>`;
+            } else if (isBeforeOpen) {
+                statusText.innerHTML = `<span class="text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.8)] flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_5px_#f87171]"></span> We are currently closed. We open at 4:00 PM.</span>`;
+            } else {
+                statusText.innerHTML = `<span class="text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.8)] flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_5px_#f87171]"></span> We are currently closed. We will open at 4:00 PM.</span>`;
+            }
             
             let waBtnContainer = document.getElementById('whatsapp-btn-container');
             
@@ -604,11 +637,13 @@
             });
             
             let deliveryFee = itemTotal >= 300 ? 0 : 40;
-            let grandTotal = itemTotal + deliveryFee;
+            let parcelCharge = itemTotal > 0 ? 5 : 0;
+            let grandTotal = itemTotal + deliveryFee + parcelCharge;
             
             msg += `------------------------\n`;
             msg += `*Item Total:* ₹${itemTotal}\n`;
             msg += `*Delivery Fee:* ${deliveryFee === 0 ? 'FREE' : '₹' + deliveryFee}\n`;
+            msg += `*Parcel Charge:* ₹${parcelCharge}\n`;
             msg += `*Grand Total:* ₹${grandTotal}\n`;
             msg += `------------------------\n\n`;
             
