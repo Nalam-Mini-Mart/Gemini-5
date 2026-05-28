@@ -712,7 +712,7 @@
             msg += `Please confirm my order.`;
             
             let encodedMsg = encodeURIComponent(msg);
-            window.open(`https://wa.me/919443992518?text=${encodedMsg}`, '_blank');
+            window.location.href = `https://wa.me/919443992518?text=${encodedMsg}`;
         }
 
         function toggleCart() {
