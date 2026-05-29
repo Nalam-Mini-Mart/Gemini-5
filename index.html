@@ -745,7 +745,7 @@
                 let sub = item.price * item.quantity;
                 itemTotal += sub;
                 
-                msg += `- ${item.name}${variantStr} x${item.quantity} = ₹${sub}\n`;
+                msg += `- ${item.name}${variantStr} *x${item.quantity}* = ₹${sub}\n`;
             });
             
             let deliveryFee = itemTotal >= 300 ? 0 : 30;
@@ -758,9 +758,9 @@
             msg += `*Grand Total: ₹${grandTotal}*\n\n`;
             
             if (itemTotal >= 300) {
-                msg += `Offer Unlocked: FREE Cold Drink + FREE Delivery\n\n`;
+                msg += `*Offer Unlocked: FREE Cold Drink + FREE Delivery*\n\n`;
             } else if (itemTotal >= 180) {
-                msg += `Offer Unlocked: FREE Limonata\n\n`;
+                msg += `*Offer Unlocked: FREE Limonata*\n\n`;
             }
             
             msg += `Please confirm my order.`;
